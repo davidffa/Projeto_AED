@@ -46,9 +46,30 @@ int main(void) {
   GraphRemoveEdge(g03, 1, 2);
   GraphDisplay(g03);
 
+  Graph* g01_copy = GraphCopy(g01);
+  printf("First graph copy:\n");
+  GraphDisplay(g01_copy);
+
+  Graph* dig01_copy = GraphCopy(dig01);
+  printf("Digraph copy:\n");
+  GraphDisplay(dig01_copy);
+
+  printf("Removing edge (1, 4) from first graph (original)\n");
+  GraphRemoveEdge(g01, 1, 4);
+  printf("Removing edge (3, 4) from first graph (copy)\n");
+  GraphRemoveEdge(g01_copy, 3, 4);
+
+  printf("First graph (original):\n");
+  GraphDisplay(g01);
+
+  printf("First graph (copy):\n");
+  GraphDisplay(g01_copy);
+
   GraphDestroy(&g01);
   GraphDestroy(&dig01);
   GraphDestroy(&g03);
+  GraphDestroy(&g01_copy);
+  GraphDestroy(&dig01_copy);
 
   return 0;
 }
