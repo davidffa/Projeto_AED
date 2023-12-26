@@ -154,12 +154,65 @@ void GraphDestroy(Graph** p) {
   *p = NULL;
 }
 
+/// Makes a Deep Copy of a graph
 Graph* GraphCopy(const Graph* g) {
   assert(g != NULL);
 
-  // TO BE COMPLETED !!
+  Graph* copy = (Graph*)malloc(sizeof(struct _GraphHeader));
+  if (copy == NULL) abort();
 
-  return NULL;
+  // Copy graph attributes
+  copy->isDigraph = g->isDigraph;
+  copy->isComplete = g->isComplete;
+  copy->isWeighted = g->isWeighted;
+
+  copy->numVertices = g->numVertices;
+  copy->numEdges = g->numEdges;
+
+  copy->verticesList = ListCreate(graphVerticesComparator);
+
+  ListMoveToHead(g->verticesList);
+
+  // Copy graph vertices
+  for (unsigned int i = 0; i < copy->numVertices; ListMoveToNext(g->verticesList), i++) {
+    struct _Vertex* copy_v = (struct _Vertex*)malloc(sizeof(struct _Vertex));
+    if (copy_v == NULL) abort();
+
+    struct _Vertex* v = ListGetCurrentItem(g->verticesList);
+
+    // Ensure that is the same vertex
+    assert(v != NULL && v->id == i);
+
+    // Copy vertex attributes
+    copy_v->id = i;
+    copy_v->inDegree = v->inDegree;
+    copy_v->outDegree = v->outDegree;
+    copy_v->edgesList = ListCreate(graphEdgesComparator);
+
+    ListInsert(copy->verticesList, copy_v);
+
+    // Copy graph edges
+    List* edges = v->edgesList;
+    ListMoveToHead(edges);
+    for (unsigned int j = 0; j < ListGetSize(edges); ListMoveToNext(edges), j++) {
+      struct _Edge* copy_e = (struct _Edge*)malloc(sizeof(struct _Edge));
+      if (copy_e == NULL) abort();
+
+      struct _Edge* edge = ListGetCurrentItem(edges);
+      copy_e->adjVertex = edge->adjVertex;
+      copy_e->weight = edge->weight;
+
+      ListInsert(copy_v->edgesList, copy_e);
+    }
+
+    // Ensure that all edges were inserted successfully
+    assert(copy_v->outDegree == ListGetSize(copy_v->edgesList));
+  }
+
+  // Ensure that all vertices were inserted successfully
+  assert(copy->numVertices == ListGetSize(copy->verticesList));
+
+  return copy;
 }
 
 Graph* GraphFromFile(FILE* f) {
