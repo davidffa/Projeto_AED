@@ -215,12 +215,50 @@ Graph* GraphCopy(const Graph* g) {
   return copy;
 }
 
+/// Constructs a Graph structure from a file with graph data
+/// Graph file format:
+/// 0 / 1 Is it directed ?
+/// 0 / 1 Is it a weighted graph ?
+/// Number of vertices
+/// Number of edges
+/// src vertex dest vertex weight (if it exists)
 Graph* GraphFromFile(FILE* f) {
   assert(f != NULL);
 
-  // TO BE COMPLETED !!
+  int directed, weighted;
+  unsigned int numVertices, numEdges;
 
-  return NULL;
+  // Read first four lines with numbers
+  if (fscanf(f, "%d%d%u%u", &directed, &weighted, &numVertices, &numEdges) != 4) {
+    fprintf(stderr, "ERROR: Invalid graph file format!\n");
+    exit(1);
+  }
+
+  Graph* g = GraphCreate(numVertices, directed, weighted);
+
+  double weight;
+  unsigned int v, w;
+
+  // We assume that the file contains at least numEdges+4 lines, so the fscanf should read the data successfully
+  for (unsigned int i = 0; i < numEdges; ++i) {
+    if (weighted) {
+      assert(fscanf(f, "%u %u %lf", &v, &w, &weight) == 3);
+
+      // The graph cannot have self-loops
+      if (v == w) continue;
+
+      GraphAddWeightedEdge(g, v, w, weight);
+    } else {
+      assert(fscanf(f, "%u %u", &v, &w) == 2);
+
+      // The graph cannot have self-loops
+      if (v == w) continue;
+
+      GraphAddEdge(g, v, w);
+    }
+  }
+
+  return g;
 }
 
 // Graph
