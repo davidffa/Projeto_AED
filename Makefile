@@ -7,7 +7,7 @@ CC = gcc
 CFLAGS += -g -Wall -Wextra
 CPPFLAGS += -MMD
 
-TARGETS = example1 example2 example3
+TARGETS = example1 example2 example3 example4
 
 all: $(TARGETS)
 
@@ -19,6 +19,7 @@ example2: example2.o Graph.o GraphTopologicalSorting.o \
 example3: example3.o Graph.o GraphTopologicalSorting.o \
  IntegersQueue.o SortedList.o instrumentation.o
 
+example4: example4.o Graph.o SortedList.o
 
 # Include dependencies (generated with gcc -MMD)
 -include *.d
