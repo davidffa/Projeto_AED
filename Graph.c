@@ -388,7 +388,67 @@ int GraphAddWeightedEdge(Graph* g, unsigned int v, unsigned int w,
 int GraphRemoveEdge(Graph* g, unsigned int v, unsigned int w) {
   assert(g != NULL);
 
-  // TO BE COMPLETED !!
+  // Get source vertex
+  ListMove(g->verticesList, v);
+  struct _Vertex* vertex = ListGetCurrentItem(g->verticesList);
+  List* edges = vertex->edgesList;
+
+  // Vertex v has no edges
+  if (ListGetSize(edges) == 0) {
+    return 0;
+  }
+
+  // Find the edge in v edges list associated with the vertex w
+  for (ListMoveToHead(edges); ListGetCurrentIndex(edges) != -1; ListMoveToNext(edges)) {
+    struct _Edge* edge = ListGetCurrentItem(edges);
+
+    // If edge found, finish the loop, current element of edges is the edge we want.
+    if (edge->adjVertex == w) break;
+  }
+
+  if (ListGetCurrentIndex(edges) == -1) {
+    // Edge not found!
+    return 0;
+  }
+
+  // Remove the edge from v edges list
+  ListRemoveCurrent(edges);
+  // Decrease outDegree of vertex
+  vertex->outDegree--;
+
+  // Remove the edge from dest vertex (w)
+  ListMove(g->verticesList, w);
+  vertex = ListGetCurrentItem(g->verticesList);
+  edges = vertex->edgesList;
+  vertex->inDegree--;
+
+  if (!g->isDigraph) {
+    // Vertex w has no edges
+    if (ListGetSize(edges) == 0) {
+      return 0;
+    }
+
+    // Find the edge in w edges list associated with the vertex v
+    for (ListMoveToHead(edges); ListGetCurrentIndex(edges) != -1; ListMoveToNext(edges)) {
+      struct _Edge* edge = ListGetCurrentItem(edges);
+
+      // If edge found, finish the loop, current element of edges is the edge we want.
+      if (edge->adjVertex == v) break;
+    }
+
+    if (ListGetCurrentIndex(edges) == -1) {
+      // Edge not found!
+      return 0;
+    }
+
+    // Remove the edge from w edges list
+    ListRemoveCurrent(edges);
+    // Decrease outDegree of vertex w
+    vertex->outDegree--;
+  }
+
+  // Decrease the graph edge count
+  g->numEdges--;
 
   return 0;
 }
