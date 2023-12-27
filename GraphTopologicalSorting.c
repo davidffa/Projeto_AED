@@ -144,10 +144,11 @@ unsigned int* GraphTopoSortGetSequence(const GraphTopoSort* p) {
   if (!p->validResult)
     return NULL;
 
+  // Alloc memory for sequence array
   unsigned int* seq = malloc(p->numVertices * sizeof(unsigned int));
-
   if (seq == NULL) abort();
 
+  // Copies the computed vertexSequence into the "seq" result array
   memcpy(seq, p->vertexSequence, p->numVertices * sizeof(unsigned int));
 
   return seq;
