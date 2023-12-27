@@ -242,14 +242,20 @@ Graph* GraphFromFile(FILE* f) {
   // We assume that the file contains at least numEdges+4 lines, so the fscanf should read the data successfully
   for (unsigned int i = 0; i < numEdges; ++i) {
     if (weighted) {
-      assert(fscanf(f, "%u %u %lf", &v, &w, &weight) == 3);
+      if (fscanf(f, "%u %u %lf", &v, &w, &weight) != 3) {
+        fprintf(stderr, "ERROR: Invalid graph file format! Could not read an weighted edge.\n");
+        exit(1);
+      }
 
       // The graph cannot have self-loops
       if (v == w) continue;
 
       GraphAddWeightedEdge(g, v, w, weight);
     } else {
-      assert(fscanf(f, "%u %u", &v, &w) == 2);
+      if (fscanf(f, "%u %u", &v, &w) != 2) {
+        fprintf(stderr, "ERROR: Invalid graph file format! Could not read an edge.\n");
+        exit(1);
+      }
 
       // The graph cannot have self-loops
       if (v == w) continue;
@@ -540,6 +546,8 @@ int GraphRemoveEdge(Graph* g, unsigned int v, unsigned int w) {
 
   // Decrease the graph edge count
   g->numEdges--;
+  // Should we change isComplete to 0? because the addEdge function does not check if the graph became complete after adding the edge
+  // g->isComplete = 0;
 
   return 0;
 }
@@ -548,7 +556,60 @@ int GraphRemoveEdge(Graph* g, unsigned int v, unsigned int w) {
 
 int GraphCheckInvariants(const Graph* g) {
   assert(g != NULL);
-  // TO BE COMPLETED !!
+
+  // Check number of vertices
+  if (g->numVertices != ListGetSize(g->verticesList)) {
+    return 1;
+  }
+
+  unsigned int numEdges = 0, inDegrees = 0;
+
+  ListMoveToHead(g->verticesList);
+  for (unsigned int i = 0; i < g->numVertices; ListMoveToNext(g->verticesList), ++i) {
+    struct _Vertex* v = ListGetCurrentItem(g->verticesList);
+
+    // Check degree
+    if (v->outDegree != ListGetSize(v->edgesList)) {
+      return 1;
+    }
+
+    numEdges += v->outDegree;
+    inDegrees += v->inDegree;
+
+    // Check for self-loops
+    List* edges = v->edgesList;
+    ListMoveToHead(edges);
+
+    for (unsigned int j = 0; j < ListGetSize(edges); ListMoveToNext(edges), ++j) {
+      struct _Edge* edge = ListGetCurrentItem(edges);
+
+      // Graph cannot have self-loops
+      if (edge->adjVertex == v->id) return 1;
+    }
+  }
+
+  if (g->isDigraph) {
+    // Number of edges (sum of outDegrees) must be equal to inDegrees sum
+    if (numEdges != inDegrees) return 1;
+    // Sum of outDegrees must be equal to number of edges
+    if (numEdges != g->numEdges) return 1;
+  } else {
+    // Divide by 2 because two adj vertices have the same edge in its edgeList
+    numEdges /= 2;
+
+    if (numEdges != g->numEdges) return 1;
+  }
+
+  // Check complete graph invariants
+  if (g->isComplete) {
+    if (g->isDigraph) {
+      if (g->numEdges != g->numVertices * (g->numVertices - 1))
+        return 1;
+    } else {
+      if (g->numEdges != g->numVertices * (g->numVertices - 1) / 2)
+        return 1;
+    }
+  }
 
   return 0;
 }

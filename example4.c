@@ -27,10 +27,12 @@ int main(int argc, char** argv) {
   }
 
   Graph* g = GraphFromFile(fp);
-
   fclose(fp);
 
   GraphDisplay(g);
+
+  int valid = GraphCheckInvariants(g) == 0 ? 1 : 0;
+  printf("Is graph valid? %s\n", valid ? "Yes" : "No");
 
   GraphDestroy(&g);
 
