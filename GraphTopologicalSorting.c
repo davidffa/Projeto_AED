@@ -67,8 +67,44 @@ GraphTopoSort* GraphTopoSortComputeV1(Graph* g) {
 
   // Build the topological sorting
 
-  // TO BE COMPLETED
-  //...
+  Graph* copy = GraphCopy(g);
+  // Computed sequence length
+  unsigned int seq_len = 0;
+
+  while (seq_len < topoSort->numVertices) {
+    unsigned int v;
+    // 1 if we can select a vertex with inDegree = 0, 0 otherwise
+    int flag = 0;
+
+    for (v = 0; v < GraphGetNumVertices(copy); ++v) {
+      // Check if vertex belongs to the graph (marked != 0) and if its incoming edges are equal to 0
+      if (!topoSort->marked[v] && GraphGetVertexInDegree(copy, v) == 0) {
+        flag = 1;
+        break;
+      }
+    }
+
+    // Could not select a vertex, stop the loop
+    if (!flag) break;
+
+    // Add the vertex to the sorted sequence and increase its length
+    topoSort->vertexSequence[seq_len++] = v;
+
+    // Remove vertex from the graph by removing its edges and marking it
+    topoSort->marked[v] = 1;
+    for (unsigned int i = 0; i < GraphGetNumVertices(copy); ++i) {
+      if (v != i)
+        GraphRemoveEdge(copy, v, i);
+    }
+  }
+
+  // Cleanup
+  GraphDestroy(&copy);
+
+  // Check if we could build a valid sequence
+  if (seq_len == topoSort->numVertices) {
+    topoSort->validResult = 1;
+  }
 
   return topoSort;
 }
