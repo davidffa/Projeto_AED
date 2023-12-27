@@ -92,10 +92,13 @@ GraphTopoSort* GraphTopoSortComputeV1(Graph* g) {
 
     // Remove vertex from the graph by removing its edges and marking it
     topoSort->marked[v] = 1;
-    for (unsigned int i = 0; i < GraphGetNumVertices(copy); ++i) {
-      if (v != i)
-        GraphRemoveEdge(copy, v, i);
+    unsigned int* adjs = GraphGetAdjacentsTo(copy, v);
+
+    for (unsigned int i = 1; i <= adjs[0]; ++i) {
+      GraphRemoveEdge(copy, v, adjs[i]);
     }
+
+    free(adjs);
   }
 
   // Cleanup
