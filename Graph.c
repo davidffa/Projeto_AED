@@ -507,15 +507,17 @@ int GraphRemoveEdge(Graph* g, unsigned int v, unsigned int w) {
     return 0;
   }
 
+  int num_edges = ListGetSize(edges);
+
   // Find the edge in v edges list associated with the vertex w
-  for (ListMoveToHead(edges); ListGetCurrentIndex(edges) != -1; ListMoveToNext(edges)) {
+  for (ListMoveToHead(edges); ListGetCurrentIndex(edges) < num_edges; ListMoveToNext(edges)) {
     struct _Edge* edge = ListGetCurrentItem(edges);
 
     // If edge found, finish the loop, current element of edges is the edge we want.
     if (edge->adjVertex == w) break;
   }
 
-  if (ListGetCurrentIndex(edges) == -1) {
+  if (ListGetCurrentIndex(edges) == num_edges) {
     // Edge not found!
     return 0;
   }
@@ -537,15 +539,16 @@ int GraphRemoveEdge(Graph* g, unsigned int v, unsigned int w) {
       return 0;
     }
 
+    num_edges = ListGetSize(edges);
     // Find the edge in w edges list associated with the vertex v
-    for (ListMoveToHead(edges); ListGetCurrentIndex(edges) != -1; ListMoveToNext(edges)) {
+    for (ListMoveToHead(edges); ListGetCurrentIndex(edges) < num_edges; ListMoveToNext(edges)) {
       struct _Edge* edge = ListGetCurrentItem(edges);
 
       // If edge found, finish the loop, current element of edges is the edge we want.
       if (edge->adjVertex == v) break;
     }
 
-    if (ListGetCurrentIndex(edges) == -1) {
+    if (ListGetCurrentIndex(edges) == num_edges) {
       // Edge not found!
       return 0;
     }
