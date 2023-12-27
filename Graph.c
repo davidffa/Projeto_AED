@@ -234,6 +234,18 @@ Graph* GraphFromFile(FILE* f) {
     exit(1);
   }
 
+  if (directed != 0 && directed != 1) {
+    fprintf(stderr, "ERROR: Invalid graph file format!\n");
+    fprintf(stderr, "Invalid flag isDirected, expected 0 or 1, but found %d\n", directed);
+    exit(1);
+  }
+
+  if (weighted != 0 && weighted != 1) {
+    fprintf(stderr, "ERROR: Invalid graph file format!\n");
+    fprintf(stderr, "Invalid flag isWeighted, expected 0 or 1, but found %d\n", weighted);
+    exit(1);
+  }
+
   Graph* g = GraphCreate(numVertices, directed, weighted);
 
   double weight;
