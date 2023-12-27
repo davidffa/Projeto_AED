@@ -77,7 +77,7 @@ GraphTopoSort* GraphTopoSortComputeV1(Graph* g) {
     int flag = 0;
 
     for (v = 0; v < GraphGetNumVertices(copy); ++v) {
-      // Check if vertex belongs to the graph (marked != 0) and if its incoming edges are equal to 0
+      // Check if vertex belongs to the graph (marked == 0) and if its incoming edges are equal to 0
       if (!topoSort->marked[v] && GraphGetVertexInDegree(copy, v) == 0) {
         flag = 1;
         break;
