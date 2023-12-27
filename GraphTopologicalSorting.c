@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "Graph.h"
 #include "IntegersQueue.h"
@@ -31,10 +32,19 @@ struct _GraphTopoSort {
 static GraphTopoSort* _create(Graph* g) {
   assert(g != NULL);
 
-  GraphTopoSort* p = NULL;
+  GraphTopoSort* p = (GraphTopoSort*)malloc(sizeof(GraphTopoSort));
 
-  // TO BE COMPLETED
-  // ...
+  if (p == NULL) abort();
+
+  p->numVertices = GraphGetNumVertices(g);
+
+  p->marked = calloc(p->numVertices, sizeof(int));
+  p->numIncomingEdges = calloc(p->numVertices, sizeof(unsigned int));
+  p->vertexSequence = calloc(p->numVertices, sizeof(unsigned int));
+  p->validResult = 0;
+  p->graph = g;
+
+  if (p->marked == NULL || p->numIncomingEdges == NULL || p->vertexSequence == NULL) abort();
 
   return p;
 }
@@ -130,9 +140,17 @@ int GraphTopoSortIsValid(const GraphTopoSort* p) { return p->validResult; }
 //
 unsigned int* GraphTopoSortGetSequence(const GraphTopoSort* p) {
   assert(p != NULL);
-  // TO BE COMPLETED
-  // ...
-  return NULL;
+
+  if (!p->validResult)
+    return NULL;
+
+  unsigned int* seq = malloc(p->numVertices * sizeof(unsigned int));
+
+  if (seq == NULL) abort();
+
+  memcpy(seq, p->vertexSequence, p->numVertices * sizeof(unsigned int));
+
+  return seq;
 }
 
 // DISPLAYING on the console
