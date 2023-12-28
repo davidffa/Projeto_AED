@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
 
   GraphDisplay(g);
 
-  int valid = GraphCheckInvariants(g) == 0 ? 1 : 0;
+  int valid = GraphCheckInvariants(g);
   printf("Is graph valid? %s\n", valid ? "Yes" : "No");
 
   GraphDestroy(&g);

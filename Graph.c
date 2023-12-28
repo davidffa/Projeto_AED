@@ -211,6 +211,7 @@ Graph* GraphCopy(const Graph* g) {
 
   // Ensure that all vertices were inserted successfully
   assert(copy->numVertices == ListGetSize(copy->verticesList));
+  assert(GraphCheckInvariants(copy));
 
   return copy;
 }
@@ -275,6 +276,16 @@ Graph* GraphFromFile(FILE* f) {
       GraphAddEdge(g, v, w);
     }
   }
+
+  if (g->isDigraph) {
+    if (g->numEdges == numVertices * (numVertices - 1))
+      g->isComplete = 1;
+  } else {
+    if (g->numEdges == numVertices * (numVertices - 1) / 2)
+      g->isComplete = 1;
+  }
+
+  assert(GraphCheckInvariants(g));
 
   return g;
 }
@@ -561,10 +572,11 @@ int GraphRemoveEdge(Graph* g, unsigned int v, unsigned int w) {
 
   // Decrease the graph edge count
   g->numEdges--;
-  // Should we change isComplete to 0? because the addEdge function does not check if the graph became complete after adding the edge
-  // g->isComplete = 0;
+  // Note: the addEdge function does not check if the graph became complete after adding the edge
+  g->isComplete = 0;
 
-  return 0;
+  assert(GraphCheckInvariants(g));
+  return 1;
 }
 
 // CHECKING
@@ -574,7 +586,7 @@ int GraphCheckInvariants(const Graph* g) {
 
   // Check number of vertices
   if (g->numVertices != ListGetSize(g->verticesList)) {
-    return 1;
+    return 0;
   }
 
   unsigned int numEdges = 0, inDegrees = 0;
@@ -585,7 +597,7 @@ int GraphCheckInvariants(const Graph* g) {
 
     // Check degree
     if (v->outDegree != ListGetSize(v->edgesList)) {
-      return 1;
+      return 0;
     }
 
     numEdges += v->outDegree;
@@ -599,34 +611,34 @@ int GraphCheckInvariants(const Graph* g) {
       struct _Edge* edge = ListGetCurrentItem(edges);
 
       // Graph cannot have self-loops
-      if (edge->adjVertex == v->id) return 1;
+      if (edge->adjVertex == v->id) return 0;
     }
   }
 
   if (g->isDigraph) {
     // Number of edges (sum of outDegrees) must be equal to inDegrees sum
-    if (numEdges != inDegrees) return 1;
+    if (numEdges != inDegrees) return 0;
     // Sum of outDegrees must be equal to number of edges
-    if (numEdges != g->numEdges) return 1;
+    if (numEdges != g->numEdges) return 0;
   } else {
     // Divide by 2 because two adj vertices have the same edge in its edgeList
     numEdges /= 2;
 
-    if (numEdges != g->numEdges) return 1;
+    if (numEdges != g->numEdges) return 0;
   }
 
   // Check complete graph invariants
   if (g->isComplete) {
     if (g->isDigraph) {
       if (g->numEdges != g->numVertices * (g->numVertices - 1))
-        return 1;
+        return 0;
     } else {
       if (g->numEdges != g->numVertices * (g->numVertices - 1) / 2)
-        return 1;
+        return 0;
     }
   }
 
-  return 0;
+  return 1;
 }
 
 // DISPLAYING on the console
