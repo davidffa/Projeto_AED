@@ -127,33 +127,41 @@ GraphTopoSort* GraphTopoSortComputeV2(Graph* g) {
 
   // Build the topological sorting
   unsigned int v;
-  int numEdgesPerVertex[GraphGetNumVertices(g)];
+
   // Registar num array auxiliar numEdgesPerVertex o InDegree de cada vértice
   for (v = 0; v < GraphGetNumVertices(g); v++) {
-    numEdgesPerVertex[v] = GraphGetVertexInDegree(topoSort->graph, v);
+    topoSort->numIncomingEdges[v] = GraphGetVertexInDegree(topoSort->graph, v);
   }
 
-  // Enquanto for possível
   unsigned int seq_len = 0;
+
+  // Enquanto for possível
   while (seq_len < topoSort->numVertices) {
     int flag = 0;
     for (v = 0; v < GraphGetNumVertices(g); v++) {
-      if (numEdgesPerVertex[v] == 0 && !topoSort->marked[v]) {
+      if (topoSort->numIncomingEdges[v] == 0 && !topoSort->marked[v]) {
         flag = 1;
         break;
       }
     }
+
     // Could not select a vertex, stop the loop
     if (!flag) break;
+
     // Imprimir o seu ID
     topoSort->vertexSequence[seq_len++] = v;
+
     // Marcar o vertice como pertencente à ordenação
     topoSort->marked[v] = 1;
+
     // Para cada vértice w adjacente a v
     unsigned int* w = GraphGetAdjacentsTo(g, v);
-    for (unsigned int i = 0; i < w[0]; i++) {
-      numEdgesPerVertex[w[i + 1]]--;
+
+    for (unsigned int i = 1; i <= w[0]; i++) {
+      topoSort->numIncomingEdges[w[i]]--;
     }
+
+    free(w);
   }
 
   // Check if we could build a valid sequence
