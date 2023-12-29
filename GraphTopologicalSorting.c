@@ -126,9 +126,40 @@ GraphTopoSort* GraphTopoSortComputeV2(Graph* g) {
   GraphTopoSort* topoSort = _create(g);
 
   // Build the topological sorting
+  unsigned int v;
+  int numEdgesPerVertex[GraphGetNumVertices(g)];
+  // Registar num array auxiliar numEdgesPerVertex o InDegree de cada vértice
+  for (v = 0; v < GraphGetNumVertices(g); v++) {
+    numEdgesPerVertex[v] = GraphGetVertexInDegree(topoSort->graph, v);
+  }
 
-  // TO BE COMPLETED
-  //...
+  // Enquanto for possível
+  unsigned int seq_len = 0;
+  while (seq_len < topoSort->numVertices) {
+    int flag = 0;
+    for (v = 0; v < GraphGetNumVertices(g); v++) {
+      if (numEdgesPerVertex[v] == 0 && !topoSort->marked[v]) {
+        flag = 1;
+        break;
+      }
+    }
+    // Could not select a vertex, stop the loop
+    if (!flag) break;
+    // Imprimir o seu ID
+    topoSort->vertexSequence[seq_len++] = v;
+    // Marcar o vertice como pertencente à ordenação
+    topoSort->marked[v] = 1;
+    // Para cada vértice w adjacente a v
+    unsigned int* w = GraphGetAdjacentsTo(g, v);
+    for (unsigned int i = 0; i < w[0]; i++) {
+      numEdgesPerVertex[w[i + 1]]--;
+    }
+  }
+
+  // Check if we could build a valid sequence
+  if (seq_len == topoSort->numVertices) {
+    topoSort->validResult = 1;
+  }
 
   return topoSort;
 }
@@ -147,10 +178,47 @@ GraphTopoSort* GraphTopoSortComputeV3(Graph* g) {
   GraphTopoSort* topoSort = _create(g);
 
   // Build the topological sorting
+  unsigned int v;
+  int numEdgesPerVertex[GraphGetNumVertices(g)];
+  // Registar num array auxiliar numEdgesPerVertex o InDegree de cada vértice
+  for (v = 0; v < GraphGetNumVertices(g); v++) {
+    numEdgesPerVertex[v] = GraphGetVertexInDegree(topoSort->graph, v);
+  }
+  // Criar FILA vazia e inserir na FILA os vértices v com numEdgesPerVertex[v] == 0
+  Queue* FILA = QueueCreate(1);
+  QueueClear(FILA);
+  for (v = 0; v < GraphGetNumVertices(g); v++) {
+    if (!QueueIsFull(FILA)) {
+      if (numEdgesPerVertex[v] == 0) {
+        QueueEnqueue(FILA, v);
+      }
+    }
+  }
+  unsigned int seq_len = 0;
+  // Enquanto a FILA não for vazia
+  while (!QueueIsEmpty(FILA)) {
+    // v = retirar próximo vértice da FILA
+    v = QueueDequeue(FILA);
+    // Imprimir o seu ID
+    topoSort->vertexSequence[seq_len++] = v;
+    // Para cada vértice w adjacente a v
+    unsigned int* w = GraphGetAdjacentsTo(g, v);
+    for (unsigned int i = 0; i < w[0]; i++) {
+      numEdgesPerVertex[w[i + 1]]--;
+      // Se numEdgesPerVertex[w] == 0 Então Inserir w na FILA
+      if (!QueueIsFull(FILA)) {
+        if (numEdgesPerVertex[w[i + 1]] == 0) {
+          QueueEnqueue(FILA, w[i + 1]);
+        }
+      }
+    }
+  }
 
-  // TO BE COMPLETED
-  //...
-
+  // Check if we could build a valid sequence
+  if (seq_len == topoSort->numVertices) {
+    topoSort->validResult = 1;
+  }
+  QueueDestroy(&FILA);
   return topoSort;
 }
 
