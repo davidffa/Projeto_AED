@@ -184,49 +184,55 @@ GraphTopoSort* GraphTopoSortComputeV3(Graph* g) {
   // Create and initialize the struct
 
   GraphTopoSort* topoSort = _create(g);
+  unsigned int num_vertices = GraphGetNumVertices(g);
 
   // Build the topological sorting
   unsigned int v;
-  int numEdgesPerVertex[GraphGetNumVertices(g)];
+
   // Registar num array auxiliar numEdgesPerVertex o InDegree de cada vértice
-  for (v = 0; v < GraphGetNumVertices(g); v++) {
-    numEdgesPerVertex[v] = GraphGetVertexInDegree(topoSort->graph, v);
+  for (v = 0; v < num_vertices; v++) {
+    topoSort->numIncomingEdges[v] = GraphGetVertexInDegree(topoSort->graph, v);
   }
+
   // Criar FILA vazia e inserir na FILA os vértices v com numEdgesPerVertex[v] == 0
-  Queue* FILA = QueueCreate(1);
-  QueueClear(FILA);
-  for (v = 0; v < GraphGetNumVertices(g); v++) {
-    if (!QueueIsFull(FILA)) {
-      if (numEdgesPerVertex[v] == 0) {
-        QueueEnqueue(FILA, v);
-      }
+  // Pior caso, todos os vértices têm inDegree 0, logo a queue tem de ter capacidade para n elementos, sendo n o nº de vértices
+  Queue* queue = QueueCreate(num_vertices);
+
+  for (v = 0; v < num_vertices; v++) {
+    if (topoSort->numIncomingEdges[v] == 0) {
+      QueueEnqueue(queue, v);
     }
   }
+
   unsigned int seq_len = 0;
   // Enquanto a FILA não for vazia
-  while (!QueueIsEmpty(FILA)) {
+  while (!QueueIsEmpty(queue)) {
     // v = retirar próximo vértice da FILA
-    v = QueueDequeue(FILA);
+    v = QueueDequeue(queue);
+
     // Imprimir o seu ID
     topoSort->vertexSequence[seq_len++] = v;
+
     // Para cada vértice w adjacente a v
     unsigned int* w = GraphGetAdjacentsTo(g, v);
-    for (unsigned int i = 0; i < w[0]; i++) {
-      numEdgesPerVertex[w[i + 1]]--;
+    for (unsigned int i = 1; i <= w[0]; i++) {
+      topoSort->numIncomingEdges[w[i]]--;
       // Se numEdgesPerVertex[w] == 0 Então Inserir w na FILA
-      if (!QueueIsFull(FILA)) {
-        if (numEdgesPerVertex[w[i + 1]] == 0) {
-          QueueEnqueue(FILA, w[i + 1]);
-        }
+      if (topoSort->numIncomingEdges[w[i]] == 0) {
+        QueueEnqueue(queue, w[i]);
       }
     }
+
+    free(w);
   }
+
+  QueueDestroy(&queue);
 
   // Check if we could build a valid sequence
   if (seq_len == topoSort->numVertices) {
     topoSort->validResult = 1;
   }
-  QueueDestroy(&FILA);
+
   return topoSort;
 }
 
