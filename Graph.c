@@ -533,8 +533,8 @@ int GraphRemoveEdge(Graph* g, unsigned int v, unsigned int w) {
     return 0;
   }
 
-  // Remove the edge from v edges list
-  ListRemoveCurrent(edges);
+  // Remove the edge from v edges list and deallocates it
+  free(ListRemoveCurrent(edges));
   // Decrease outDegree of vertex
   vertex->outDegree--;
 
@@ -564,8 +564,8 @@ int GraphRemoveEdge(Graph* g, unsigned int v, unsigned int w) {
       return 0;
     }
 
-    // Remove the edge from w edges list
-    ListRemoveCurrent(edges);
+    // Remove the edge from w edges list and deallocates it
+    free(ListRemoveCurrent(edges));
     // Decrease outDegree of vertex w
     vertex->outDegree--;
   }
@@ -573,6 +573,7 @@ int GraphRemoveEdge(Graph* g, unsigned int v, unsigned int w) {
   // Decrease the graph edge count
   g->numEdges--;
   // Note: the addEdge function does not check if the graph became complete after adding the edge
+  //       but in this Graph implementation we assume that the graph cannot have self-loops nor parallel edges
   g->isComplete = 0;
 
   assert(GraphCheckInvariants(g));
