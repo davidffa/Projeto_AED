@@ -275,6 +275,10 @@ Graph* GraphFromFile(FILE* f) {
 
       GraphAddEdge(g, v, w);
     }
+
+    // NOTE: This Graph implementation does not allow parallel edges, but we don't need to
+    //       check for that case because the ListInsert only allows inserting unique members,
+    //       so that case will be handled "automatically" by ListInsert function
   }
 
   if (g->isDigraph) {
