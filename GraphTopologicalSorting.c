@@ -24,6 +24,8 @@ struct _GraphTopoSort {
   Graph* graph;
 };
 
+#define VERTMEM InstrCount[0]
+
 // AUXILIARY FUNCTION
 // Allocate memory for the struct
 // And for its array fields
@@ -77,6 +79,7 @@ GraphTopoSort* GraphTopoSortComputeV1(Graph* g) {
     int flag = 0;
 
     for (v = 0; v < GraphGetNumVertices(copy); ++v) {
+      VERTMEM += 1;
       // Check if vertex belongs to the graph (marked == 0) and if its incoming edges are equal to 0
       if (!topoSort->marked[v] && GraphGetVertexInDegree(copy, v) == 0) {
         flag = 1;
@@ -130,6 +133,7 @@ GraphTopoSort* GraphTopoSortComputeV2(Graph* g) {
 
   // Registar num array auxiliar numEdgesPerVertex o InDegree de cada vértice
   for (v = 0; v < GraphGetNumVertices(g); v++) {
+    VERTMEM += 1;
     topoSort->numIncomingEdges[v] = GraphGetVertexInDegree(topoSort->graph, v);
   }
 
@@ -139,6 +143,7 @@ GraphTopoSort* GraphTopoSortComputeV2(Graph* g) {
   while (seq_len < topoSort->numVertices) {
     int flag = 0;
     for (v = 0; v < GraphGetNumVertices(g); v++) {
+      VERTMEM += 1;
       if (topoSort->numIncomingEdges[v] == 0 && !topoSort->marked[v]) {
         flag = 1;
         break;
@@ -191,6 +196,7 @@ GraphTopoSort* GraphTopoSortComputeV3(Graph* g) {
 
   // Registar num array auxiliar numEdgesPerVertex o InDegree de cada vértice
   for (v = 0; v < num_vertices; v++) {
+    VERTMEM += 1;
     topoSort->numIncomingEdges[v] = GraphGetVertexInDegree(topoSort->graph, v);
   }
 

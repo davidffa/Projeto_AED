@@ -82,13 +82,21 @@ void doSortsGraphFile(char *fname) {
   GraphDestroy(&originalG);
 }
 
+void InstrInit(void) {
+  InstrCalibrate();
+
+  InstrName[0] = "vertmem";
+  InstrName[1] = "edgemem";
+  InstrName[2] = "qinsert";
+}
+
 int main(int argc, char *argv[]) {
   if (argc < 2) {
     fprintf(stderr, "Usage: %s GRAPH_FILE ...\n", argv[0]);
     exit(1);
   }
 
-  InstrCalibrate();
+  InstrInit();
 
   for (int i = 1; i < argc; i++) {
     char *fname = argv[i];

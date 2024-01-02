@@ -9,7 +9,10 @@
 
 #include <assert.h>
 #include <stdlib.h>
+
 #include "instrumentation.h"
+
+#define QINSERT InstrCount[2]
 
 struct _IntegersQueue {
   int max_size;  // maximum Queue size
@@ -76,6 +79,7 @@ void QueueEnqueue(Queue* q, int i) {
   q->tail = increment_index(q, q->tail);
   q->data[q->tail] = i;
   q->cur_size++;
+  QINSERT += 1;
 }
 
 int QueueDequeue(Queue* q) {

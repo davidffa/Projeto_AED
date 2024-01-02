@@ -36,6 +36,9 @@ struct _GraphHeader {
   List* verticesList;
 };
 
+#define VERTMEM InstrCount[0]
+#define EDGEMEM InstrCount[1]
+
 // The comparator for the VERTICES LIST
 
 int graphVerticesComparator(const void* p1, const void* p2) {
@@ -178,6 +181,8 @@ Graph* GraphCopy(const Graph* g) {
     struct _Vertex* copy_v = (struct _Vertex*)malloc(sizeof(struct _Vertex));
     if (copy_v == NULL) abort();
 
+    // Load current vertex
+    VERTMEM += 1;
     struct _Vertex* v = ListGetCurrentItem(g->verticesList);
 
     // Ensure that is the same vertex
@@ -189,6 +194,8 @@ Graph* GraphCopy(const Graph* g) {
     copy_v->outDegree = v->outDegree;
     copy_v->edgesList = ListCreate(graphEdgesComparator);
 
+    // Store copied vertex
+    VERTMEM += 1;
     ListInsert(copy->verticesList, copy_v);
 
     // Copy graph edges
@@ -198,10 +205,14 @@ Graph* GraphCopy(const Graph* g) {
       struct _Edge* copy_e = (struct _Edge*)malloc(sizeof(struct _Edge));
       if (copy_e == NULL) abort();
 
+      // Load edge
+      EDGEMEM += 1;
       struct _Edge* edge = ListGetCurrentItem(edges);
       copy_e->adjVertex = edge->adjVertex;
       copy_e->weight = edge->weight;
 
+      // Store edge
+      EDGEMEM += 1;
       ListInsert(copy_v->edgesList, copy_e);
     }
 
@@ -359,6 +370,9 @@ unsigned int* GraphGetAdjacentsTo(const Graph* g, unsigned int v) {
   // Node in the list of vertices
   List* vertices = g->verticesList;
   ListMove(vertices, v);
+
+  // Load vertex
+  VERTMEM += 1;
   struct _Vertex* vPointer = ListGetCurrentItem(vertices);
   unsigned int numAdjVertices = vPointer->outDegree;
 
@@ -370,6 +384,8 @@ unsigned int* GraphGetAdjacentsTo(const Graph* g, unsigned int v) {
     List* adjList = vPointer->edgesList;
     ListMoveToHead(adjList);
     for (unsigned int i = 0; i < numAdjVertices; ListMoveToNext(adjList), i++) {
+      // Load edge
+      EDGEMEM += 1;
       struct _Edge* ePointer = ListGetCurrentItem(adjList);
       adjacent[i + 1] = ePointer->adjVertex;
     }
@@ -441,6 +457,8 @@ unsigned int GraphGetVertexInDegree(Graph* g, unsigned int v) {
   assert(v < g->numVertices);
 
   ListMove(g->verticesList, v);
+  // Load vertex
+  VERTMEM += 1;
   struct _Vertex* p = ListGetCurrentItem(g->verticesList);
 
   return p->inDegree;
@@ -514,6 +532,8 @@ int GraphRemoveEdge(Graph* g, unsigned int v, unsigned int w) {
 
   // Get source vertex
   ListMove(g->verticesList, v);
+  // Load vertex
+  VERTMEM += 1;
   struct _Vertex* vertex = ListGetCurrentItem(g->verticesList);
   List* edges = vertex->edgesList;
 
@@ -526,6 +546,8 @@ int GraphRemoveEdge(Graph* g, unsigned int v, unsigned int w) {
 
   // Find the edge in v edges list associated with the vertex w
   for (ListMoveToHead(edges); ListGetCurrentIndex(edges) < num_edges; ListMoveToNext(edges)) {
+    // Load edge
+    EDGEMEM += 1;
     struct _Edge* edge = ListGetCurrentItem(edges);
 
     // If edge found, finish the loop, current element of edges is the edge we want.
@@ -544,10 +566,13 @@ int GraphRemoveEdge(Graph* g, unsigned int v, unsigned int w) {
 
   // Remove the edge from dest vertex (w)
   ListMove(g->verticesList, w);
+  VERTMEM += 1;  // Load vertex
   vertex = ListGetCurrentItem(g->verticesList);
   edges = vertex->edgesList;
   vertex->inDegree--;
 
+  // NOTE: We don't add operations count below, because we only want to analyze the time complexity of topological sorting
+  //       functions, which only applies to directed graphs
   if (!g->isDigraph) {
     // Vertex w has no edges
     if (ListGetSize(edges) == 0) {
