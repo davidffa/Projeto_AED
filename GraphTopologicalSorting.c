@@ -68,7 +68,6 @@ GraphTopoSort* GraphTopoSortComputeV1(Graph* g) {
   GraphTopoSort* topoSort = _create(g);
 
   // Build the topological sorting
-
   Graph* copy = GraphCopy(g);
   // Computed sequence length
   unsigned int seq_len = 0;
@@ -133,7 +132,6 @@ GraphTopoSort* GraphTopoSortComputeV2(Graph* g) {
 
   // Registar num array auxiliar numEdgesPerVertex o InDegree de cada vértice
   for (v = 0; v < GraphGetNumVertices(g); v++) {
-    VERTMEM += 1;
     topoSort->numIncomingEdges[v] = GraphGetVertexInDegree(topoSort->graph, v);
   }
 
@@ -196,7 +194,6 @@ GraphTopoSort* GraphTopoSortComputeV3(Graph* g) {
 
   // Registar num array auxiliar numEdgesPerVertex o InDegree de cada vértice
   for (v = 0; v < num_vertices; v++) {
-    VERTMEM += 1;
     topoSort->numIncomingEdges[v] = GraphGetVertexInDegree(topoSort->graph, v);
   }
 
