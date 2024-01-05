@@ -9,6 +9,7 @@
 #include "Graph.h"
 
 #include <assert.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -39,6 +40,16 @@ struct _GraphHeader {
 #define VERTMEM InstrCount[0]
 #define EDGEMEM InstrCount[1]
 
+// Used for instrumentation stuff
+static bool init = false;
+
+static void GraphInit(void) {
+  InstrCalibrate();
+  InstrName[0] = "vertmem";
+  InstrName[1] = "edgemem";
+  InstrName[2] = "qinsert";
+}
+
 // The comparator for the VERTICES LIST
 
 int graphVerticesComparator(const void* p1, const void* p2) {
@@ -58,6 +69,12 @@ int graphEdgesComparator(const void* p1, const void* p2) {
 }
 
 Graph* GraphCreate(unsigned int numVertices, int isDigraph, int isWeighted) {
+  // Initialize the instrumentation
+  if (!init) {
+    GraphInit();
+    init = true;
+  }
+
   Graph* g = (Graph*)malloc(sizeof(struct _GraphHeader));
   if (g == NULL) abort();
 

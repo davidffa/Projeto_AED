@@ -10,6 +10,7 @@
 #include <stdlib.h>
 
 #include "Graph.h"
+#include "instrumentation.h"
 
 int main(int argc, char** argv) {
   if (argc < 2) {
@@ -31,10 +32,15 @@ int main(int argc, char** argv) {
 
   GraphDisplay(g);
 
+  InstrReset();
+  Graph* cp = GraphCopy(g);
+  InstrPrint();
+
   int valid = GraphCheckInvariants(g);
   printf("Is graph valid? %s\n", valid ? "Yes" : "No");
 
   GraphDestroy(&g);
+  GraphDestroy(&cp);
 
   return 0;
 }
