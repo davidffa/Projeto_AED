@@ -25,6 +25,7 @@ struct _GraphTopoSort {
 };
 
 #define VERTMEM InstrCount[0]
+#define SUMS InstrCount[3]
 
 // AUXILIARY FUNCTION
 // Allocate memory for the struct
@@ -162,6 +163,7 @@ GraphTopoSort* GraphTopoSortComputeV2(Graph* g) {
 
     for (unsigned int i = 1; i <= w[0]; i++) {
       topoSort->numIncomingEdges[w[i]]--;
+      SUMS += 1;
     }
 
     free(w);
@@ -219,6 +221,7 @@ GraphTopoSort* GraphTopoSortComputeV3(Graph* g) {
     // Para cada vértice w adjacente a v
     unsigned int* w = GraphGetAdjacentsTo(g, v);
     for (unsigned int i = 1; i <= w[0]; i++) {
+      SUMS += 1;
       topoSort->numIncomingEdges[w[i]]--;
       // Se numEdgesPerVertex[w] == 0 Então Inserir w na FILA
       if (topoSort->numIncomingEdges[w[i]] == 0) {

@@ -39,6 +39,7 @@ struct _GraphHeader {
 
 #define VERTMEM InstrCount[0]
 #define EDGEMEM InstrCount[1]
+#define SUMS InstrCount[3]
 
 // Used for instrumentation stuff
 static bool init = false;
@@ -48,6 +49,7 @@ static void GraphInit(void) {
   InstrName[0] = "vertmem";
   InstrName[1] = "edgemem";
   InstrName[2] = "qinsert";
+  InstrName[3] = "sums";
 }
 
 // The comparator for the VERTICES LIST
@@ -582,13 +584,16 @@ int GraphRemoveEdge(Graph* g, unsigned int v, unsigned int w) {
   free(ListRemoveCurrent(edges));
   // Decrease outDegree of vertex
   vertex->outDegree--;
+  SUMS += 1;
 
   // Remove the edge from dest vertex (w)
   ListMove(g->verticesList, w);
   VERTMEM += 1;  // Load vertex
   vertex = ListGetCurrentItem(g->verticesList);
   edges = vertex->edgesList;
+
   vertex->inDegree--;
+  SUMS += 1;
 
   // NOTE: We don't add operations count below, because we only want to analyze the time complexity of topological sorting
   //       functions, which only applies to directed graphs
