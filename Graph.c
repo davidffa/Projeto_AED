@@ -50,6 +50,7 @@ static void GraphInit(void) {
   InstrName[1] = "edgemem";
   InstrName[2] = "qinsert";
   InstrName[3] = "sums";
+  InstrName[4] = "listmove";
 }
 
 // The comparator for the VERTICES LIST

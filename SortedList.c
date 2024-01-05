@@ -14,7 +14,10 @@
 
 #include <assert.h>
 #include <stdlib.h>
+
 #include "instrumentation.h"
+
+#define LISTMOVE InstrCount[4]
 
 struct _ListNode {
   void* item;
@@ -142,17 +145,21 @@ int ListMove(List* l, int newPos) {
     l->current = NULL;
   } else if (newPos == 0) {
     l->current = l->head;
+    LISTMOVE += 1;
   } else if (newPos == l->size - 1) {
     l->current = l->tail;
+    LISTMOVE += 1;
   } else {
     if (l->currentPos == -1 || l->currentPos == l->size ||
         newPos < l->currentPos) {
       l->current = l->head;
       l->currentPos = 0;
+      LISTMOVE += 1;
     }
 
     for (int i = l->currentPos; i < newPos; i++) {
       l->current = l->current->next;
+      LISTMOVE += 1;
     }
   }
   l->currentPos = newPos;
